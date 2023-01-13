@@ -53,19 +53,19 @@ Shader "Stereo/StereoImage"
                 return output;
             }
 
-            half4 frag(Varyings input) : SV_Target
+            half4 frag(Varyings input, bool IsFacing:SV_IsFrontFace) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 // sample the texture
 
-
                 // apply fog
                 // UNITY_APPLY_FOG(i.fogCoord, col);
-                float c = lerp(0,1,unity_StereoEyeIndex);
-                half2 uv = input.uv;
+                float c = lerp(0,1,abs(unity_StereoEyeIndex-IsFacing?1:0));
+                half2 uv = input.uv.xy;
+                
                 uv.x *= 0.5;
-                uv.x += 0.5 * unity_StereoEyeIndex;
-                half3 color = tex2D(_MainTex, uv);
+                uv.x += 0.5 * abs(unity_StereoEyeIndex-IsFacing?0:1);
+                half3 color = tex2D(_MainTex, uv).rgb;
                 return half4(color,1);
             }
             ENDHLSL
